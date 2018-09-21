@@ -1,22 +1,72 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+/* eslint-disable react/prop-types */
+import { Component } from 'react'
 
-import styles from './styles.css'
+class Stateful extends Component {
+  constructor(props) {
+    super(props)
+    this.state = props.state || {}
+  }
 
-export default class ExampleComponent extends Component {
-  static propTypes = {
-    text: PropTypes.string
+  componentDidMount() {
+    this.mounted = true
+  }
+
+  componentWillUnmount() {
+    this.mounted = false
   }
 
   render() {
-    const {
-      text
-    } = this.props
-
-    return (
-      <div className={styles.test}>
-        Example Component: {text}
-      </div>
-    )
+    const { children } = this.props
+    return children({
+      state: this.state,
+      setState: state => {
+        if (this.mounted) {
+          this.setState(state)
+        }
+      },
+      getState: () => this.state,
+      object: this
+    })
   }
 }
+
+export class OnMountAndUnMount extends Component {
+  componentDidMount() {
+    this.props.children({
+      mount: true,
+      object: this
+    })
+  }
+  componentWillUnmount() {
+    this.props.children({
+      mount: false,
+      object: this
+    })
+  }
+  render() {
+    return null
+  }
+}
+
+export class Onmount extends Component {
+  componentDidMount() {
+    this.props.children({
+      mount: true,
+      object: this
+    })
+  }
+  render() {
+    return null
+  }
+}
+
+export class Onunmount extends Component {
+  componentWillUnmount() {
+    this.props.children()
+  }
+  render() {
+    return null
+  }
+}
+
+export default Stateful
